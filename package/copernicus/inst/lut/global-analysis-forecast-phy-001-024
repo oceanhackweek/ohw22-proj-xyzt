@@ -1,0 +1,12 @@
+name,longname,units
+mlotst,Density ocean mixed layer thickness,m
+siconc,Ice concentration,1
+thetao,Temperature,degrees_C
+usi,Sea ice eastward velocity,m s-1
+sithick,Sea ice thickness,m
+bottomT,Sea floor potential temperature,degrees_C
+vsi,Sea ice northward velocity,m s-1
+vo,Northward velocity,m s-1
+uo,Eastward velocity,m s-1
+so,Salinity,1e-3
+zos,Sea surface height,m
