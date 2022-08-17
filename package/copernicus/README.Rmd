@@ -1,0 +1,47 @@
+---
+title: "copernicus"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stars)
+library(copernicus)
+```
+
+# copernicus
+
+Provides download and access to [Copernicus](https://marine.copernicus.eu/) marine datasets.
+
+### Requirements
+
+  + [R v4+](https://www.r-project.org/)
+  + [rlang](https://CRAN.R-project.org/package=rlang)
+  + [dplyr](https://CRAN.R-project.org/package=dplyr)
+  + [ncdf4](https://CRAN.R-project.org/package=ncdf4)
+  + [sf](https://CRAN.R-project.org/package=sf)
+  + [stars](https://CRAN.R-project.org/package=stars)
+  + [readr](https://CRAN.R-project.org/package=readr)
+  + [twinkle](https://github.com/BigelowLab/twinkle)
+  
+
+### Installation
+
+```
+remotes::install_github("oceanhackweek/ohw22-proj-xyzt",
+                        subdir = "package/copernicus")
+```
+
+## Downloading
+
+
+### Look Up Table (lut)
+
+The variable names are a bit cryptic (at least to me) so we provide a look-up table that associates the variable name with other information available from the source.
+
+```{r lut, message = FALSE}
+lut <- copernicus::read_lut()
+print(lut, n = nrow(lut))
+```
+
+
