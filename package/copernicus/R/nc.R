@@ -361,8 +361,7 @@ get_var <- function(x,
                                              values = depths[depth_index])
                 })
     if (length(r) > 1){
-      r <- r |>
-        twinkle::bind_stars(nms= format(times[itime], "%Y%m%dT%H%M%S")) |>
+      r <- Reduce(c, r) |>
         merge(name = 'time') |>
         stars::st_set_dimensions(which = 4,
                                  names = 'time',

@@ -7,12 +7,10 @@ Depends:
   R (>= 4.1)
 Imports:
   rlang,
-  dplyr,
-  tidyr,
+  readr,
   sf,
   stars,
-  ncdf4,
-  xyzt
+  ncdf4
 Maintainer: Ben Tupper <btupper@bigelow.org>
 Author: Ben Tupper <btupper@bigelow.org>, Johnathan Evanilla <jevanilla@bigelow.org>, Stefania Klayn
 License: MIT + file LICENSE
