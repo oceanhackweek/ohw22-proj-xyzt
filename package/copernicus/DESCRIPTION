@@ -1,0 +1,20 @@
+Package: copernicus
+Title: copernicus
+Description: Simplified access to copernicus data from R.
+URL: https://github.com/oceanhackweek/ohw22-proj-xyzt
+Version: 0.1
+Depends:
+  R (>= 4.1)
+Imports:
+  rlang,
+  dplyr,
+  tidyr,
+  sf,
+  stars,
+  ncdf4,
+  xyzt
+Maintainer: Ben Tupper <btupper@bigelow.org>
+Author: Ben Tupper <btupper@bigelow.org>, Johnathan Evanilla <jevanilla@bigelow.org>, Stefania Klayn
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.2.1
