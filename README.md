@@ -5,7 +5,7 @@ OHW22 Project to streamline extraction of data (especially from rasters) using [
 
 ### Collaborators
 
-Stephania Klyan (Bulgaria)
+Stefania Klayn (Bulgaria)
 
 Cindy Garcia-Eidell (Maine)
 
