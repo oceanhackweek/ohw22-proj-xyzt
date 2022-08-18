@@ -33,7 +33,6 @@ unpack_copernicus <- function(filename, banded = FALSE){
 fetch_copernicus <- function(script = "global-analysis-forecast-phy-001-024",
                              date = Sys.Date(),
                              out_path = tempfile(pattern= 'copernicus',
-                                                 tmpdir = "/dev/shm",
                                                  fileext = ".nc"),
                              cleanup = TRUE,
                              ...){
