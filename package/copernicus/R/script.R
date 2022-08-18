@@ -9,7 +9,7 @@ read_script <- function(name = "global-analysis-forecast-phy-001-024",
   filename <- file.path(path[1], name[1])
   x <- readLines(filename)
   ix <- regexpr("\\s", x)
-  c("app" = substring(x, 1, ix-1),
+  c("app" = options("copernicus")[[1]][['python_app']],
     "param" = substring(x, ix+1, nchar(x)))
 }
 

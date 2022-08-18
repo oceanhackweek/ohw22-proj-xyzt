@@ -34,10 +34,12 @@ Provides download and access to [Copernicus](https://marine.copernicus.eu/) mari
 You have to get your own credentials from [Copernicus](https://resources.marine.copernicus.eu/registration-form) - a user name and password.  These can be stored in your `~/.Rprofile` file which is just a hidden text file that is loaded and run when you instance of R starts.
 
 ```
-options(gargle_oauth_email = "btupper@bigelow.org",
-        copernicus = list(username = "my_user_name", 
-                          password = "my_password"))
+options(copernicus = list(username = "my_user_name", 
+                          password = "my_password",
+                          python_app = "python3"))
 ```
+
+If you have a non-boring install of python then be sure to set python_app to your own need. 
 
   
 ### Installation
@@ -55,8 +57,7 @@ As minimum you should be able to down the default (for Northwest Atlantic).
 library(stars)
 library(copernicus)
 
-x <- fetch_copernicus() |>
-  Reduce(c)
+x <- fetch_copernicus() 
 x
 ```
 
@@ -69,5 +70,3 @@ The variable names are a bit cryptic (at least to me) so we provide a look-up ta
 lut <- copernicus::read_lut()
 print(lut, n = nrow(lut))
 ```
-
-
