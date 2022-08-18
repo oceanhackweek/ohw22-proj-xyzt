@@ -7,7 +7,7 @@
 fetch_copernicus(
   script = "global-analysis-forecast-phy-001-024",
   date = Sys.Date(),
-  out_path = tempfile(pattern = "copernicus", tmpdir = "/dev/shm", fileext = ".nc"),
+  out_path = tempfile(pattern = "copernicus", fileext = ".nc"),
   cleanup = TRUE,
   ...
 )

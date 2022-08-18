@@ -15,6 +15,12 @@ Provides download and access to [Copernicus](https://marine.copernicus.eu/) mari
 
 ### Requirements
 
+#### Python
+  
+  + [motuclient](https://help.marine.copernicus.eu/en/articles/4796533-what-are-the-motu-client-motuclient-and-python-requirements#h_253e379790)
+
+#### R
+
   + [R v4+](https://www.r-project.org/)
   + [rlang](https://CRAN.R-project.org/package=rlang)
   + [dplyr](https://CRAN.R-project.org/package=dplyr)
@@ -22,9 +28,18 @@ Provides download and access to [Copernicus](https://marine.copernicus.eu/) mari
   + [sf](https://CRAN.R-project.org/package=sf)
   + [stars](https://CRAN.R-project.org/package=stars)
   + [readr](https://CRAN.R-project.org/package=readr)
-  + [twinkle](https://github.com/BigelowLab/twinkle)
   
+#### Copernicus Credentials
 
+You have to get your own credentials from [Copernicus](https://resources.marine.copernicus.eu/registration-form) - a user name and password.  These can be stored in your `~/.Rprofile` file which is just a hidden text file that is loaded and run when you instance of R starts.
+
+```
+options(gargle_oauth_email = "btupper@bigelow.org",
+        copernicus = list(username = "my_user_name", 
+                          password = "my_password"))
+```
+
+  
 ### Installation
 
 ```
@@ -33,6 +48,17 @@ remotes::install_github("oceanhackweek/ohw22-proj-xyzt",
 ```
 
 ## Downloading
+
+As minimum you should be able to down the default (for Northwest Atlantic). 
+
+```{r}
+library(stars)
+library(copernicus)
+
+x <- fetch_copernicus() |>
+  Reduce(c)
+x
+```
 
 
 ### Look Up Table (lut)
