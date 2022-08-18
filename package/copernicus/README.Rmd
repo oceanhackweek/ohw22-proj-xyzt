@@ -5,8 +5,6 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(stars)
-library(copernicus)
 ```
 
 # copernicus
@@ -51,16 +49,53 @@ remotes::install_github("oceanhackweek/ohw22-proj-xyzt",
 
 ## Downloading
 
-As minimum you should be able to down the default (for Northwest Atlantic). 
+As minimum you should be able to down the default (for Northwest Atlantic) region. 
 
-```{r}
+```{r fetch}
 library(stars)
 library(copernicus)
+library(xyzt)
 
-x <- fetch_copernicus() 
+x <- fetch_copernicus(out_path = "~/copernicus-test.nc") 
 x
 ```
 
+You can read that file later using `read_copernicus(filename)` like this.
+
+```{r read}
+x <- read_copernicus("~/copernicus-test.nc")
+```
+
+### Extracting point data
+
+Since have a stars object, you can use `stars::st_extract(x, at = your_points)`.
+Let's borrow the Gulf of Maine points from the [xyzt package](https://github.com/BigelowLab/xyzt)
+
+```{r extract points}
+points <- xyzt::read_gom() |>
+  xyzt::as_POINT()
+
+vars <- stars::st_extract(x, at = points)
+vars
+```
+
+### Extracting data within a bounding box
+
+```{r extract bbox}
+bbox <- points |>
+  xyzt::as_BBOX()
+
+sub <- x[bbox]
+sub
+```
+
+```{r plot}
+n <- 11
+plot(x['bottomT'], axes = TRUE, reset = FALSE)
+plot(sub['bottomT'], add = TRUE, 
+     col = rainbow(n-1),
+     main = NULL)
+```
 
 ### Look Up Table (lut)
 
