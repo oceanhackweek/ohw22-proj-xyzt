@@ -1,0 +1,118 @@
+---
+title: "Test - extract environmental data for coordinates - package xyzt & friends"
+subtitle: "OHW 2022"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+This is a test run using package [xyzt](https://github.com/BigelowLab/xyzt) (and derivatives for specific data sources) to extract e  environmental data for coordinates of interest (e.g. sampling stations).  
+I'm using my MSFD dataset for 2017, containing zoobenthic stations in the Bulgarian Black Sea sampled by IO-BAS for the national MSFD monitoring. There are separate coordinates for each replicate sample, sampling dates, and station depths in meters.  
+
+
+## Setup  
+Load necessary packages.  
+```{r load_packages}
+library(tidyverse)
+library(here)
+library(sf)
+library(ghrsst)
+library(xyzt)
+library(stars)
+```
+
+Define the working directory using package here (= project directory, ohw22-proj-xyzt), by giving it the path to the current file, relative to the project root.  
+```{r set_wd}
+here::i_am("notebook/test_covars_extraction_with_xyzt.Rmd")
+```
+
+
+## Import data  
+Read in my example dataset (in the data subdirectory). It's a csv file.   
+```{r import_data}
+(msfd <- read_csv(here("data", "msfd_2017_meta.csv")) %>% 
+     ## remove units from depth column name 
+     rename(depth = depth_m)
+)
+```
+
+Transform to spatial points - ignore the dates and depths for now.  
+```{r make_spatial_points}
+(msfd.sp <- msfd %>% 
+    as_POINT(dims = "xy")
+)
+```
+
+
+## Extract data for points  
+Get the environmental data - in this case, SST from [GHRSST (Group for High Resolution Sea Surface Temperature)](https://www.ghrsst.org/). Several other variables are also available, but the time to get them all is fairly long, and I want to go through all dates and the corresponding points in the dataset in one go.    
+
+
+```{r extract_sst_points}
+## get the unique dates
+dates <- msfd.sp %>% pull(date) %>% unique()
+
+(msfd.sp.sst <- map(dates, function(x) {
+    ## subset points to only those sampled on the current date
+    msfd.sub <- msfd.sp %>% 
+        filter(date == x)
+    
+    ## generate a MUR url for the current date
+    url <- mur_url(x)
+    
+    ## open the resource
+    X <- ncdf4::nc_open(url)
+
+    ## extract the data - only SST 
+    covars <- ghrsst::extract(msfd.sub, X, varname = "analysed_sst")
+    
+    ## bind to the input
+    msfd.sub.sst <- dplyr::bind_cols(msfd.sub, covars)
+    
+    ## close the resource
+    ncdf4::nc_close(X)
+    
+    return(msfd.sub.sst)
+    
+}) %>%
+        
+    ## put the dataset back together in a tibble
+    bind_rows()
+)
+```
+
+
+Ok, seems fine.. Note how the SSTs look duplicated - because the replicate samples are so close to one another (in fact I wouldn't really record 2 different sets of coordinates for replicates at the same station, but oh well, IO-BAS do this with their samples).  
+
+
+## Extract data for bounding box (from points)  
+Use the points' spatial extent to construct a bounding box, then get the environmental data.  
+This time, I'll just use one date, and get all available parameters.  
+
+```{r make_bounding_box}
+msfd.bbox <- msfd %>% 
+    as_BBOX()
+```
+
+
+Get the environmental data.  
+```{r extract_env_data_bounding_box}
+## generate a MUR url for the desired date - here, the first one (only one remaining for the bounding box)
+url <- mur_url(msfd.bbox %>% pull(date))
+    
+## open the resource
+X <- ncdf4::nc_open(url)
+
+## extract data
+(env.data <- ghrsst::extract(msfd.bbox, X, varnames = ghrsst::mur_vars(X)))
+
+## close the connection
+ncdf4::nc_close(X)
+```
+
+
+Plot the extracted SST and the points.  
+```{r plot_sst_bounding_box}
+plot(env.data, attr = 'analysed_sst', axes = TRUE, reset = FALSE)
+plot(sf::st_geometry(msfd.sp), add = TRUE, col = "orange", pch = 19, cex = 0.9)
+```
+
