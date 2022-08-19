@@ -1,0 +1,85 @@
+---
+title: "Test - extract environmental data for coordinates from Copernicus marine - package copernicus (xyzt)"
+subtitle: "OHW 2022"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+This is a test run using package [copernicus](https://github.com/oceanhackweek/ohw22-proj-xyzt/tree/main/package/copernicus) developed during OceanHackWeek2022 to extract environmental data for coordinates of interest (e.g. sampling stations) from [Copernicus marine service](https://marine.copernicus.eu).  
+The test script downloads the very first dataset in the catalogue, [GLOBAL_ANALYSIS_FORECAST_PHY_001_024 (Global Ocean 1/12° Physics Analysis and Forecast updated Daily)](https://resources.marine.copernicus.eu/product-detail/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/INFORMATION).  
+I'm also using my MSFD dataset for 2017, containing zoobenthic stations in the Bulgarian Black Sea sampled by IO-BAS for the national MSFD monitoring. There are separate coordinates for each replicate sample, sampling dates, and station depths in meters.  
+
+
+## Setup  
+Package copernicus can be installed from Github. See readme for installation instructions and other requirements.  
+A (free) Copernicus account is required to download data; the readme explains how to store the credentials in the R environment.   
+
+Load necessary packages.  
+```{r load_packages}
+library(tidyverse)
+library(here)
+library(xyzt)
+library(copernicus)
+```
+
+Define the working directory using package here (= project directory, ohw22-proj-xyzt), by giving it the path to the current file, relative to the project root.  
+```{r set_wd}
+here::i_am("notebook/test_covars_extraction_with_copernicus.Rmd")
+```
+
+
+## Import data  
+Read in my example dataset (in the data subdirectory). It's a csv file.   
+```{r import_data}
+(msfd <- read_csv(here("data", "msfd_2017_meta.csv")) %>% 
+     ## remove units from depth column name 
+     rename(depth = depth_m)
+)
+```
+
+Transform to spatial points - ignore the dates and depths for now.  
+```{r make_spatial_points}
+(msfd.sp <- msfd %>% 
+    as_POINT(dims = "xy")
+)
+```
+
+
+## Download Copernicus data  
+The package contains a script for constructing the server request for a given dataset and bounding box of interest. The coordinates for the bounding box are in the order **lon_min, lon_max, lat_min, lat_max**. The dates and depth of interest can also be specified.    
+The script downloads the whole bounding box, from which the environmental parameters values at whatever coordinates can be extracted.   
+
+Define the bounding box of interest (W Black Sea - somewhat arbitrarily defined here) and download data.  
+```{r download_data_copernicus}
+## insert the bounding box coordinates in the script (lon_min, lon_max, lat_min, lat_max)  
+tst.script <- populate_script(bb = c(27.44547, 30.67082, 41.96027, 44.03979), 
+                              out_name = here("data", "copernicus_2022-08-19.nc")) ## put downloaded file in data folder 
+
+download_copernicus(tst.script)
+```
+
+
+Read in the downloaded file.  
+```{r import_downloaded_data_copernicus}
+(bs <- read_copernicus(here("data", "copernicus_2022-08-19.nc")))
+```
+
+Extract the values of the environmental variables at the sampling stations.  
+```{r extract_env_data_stations}
+(vars <- stars::st_extract(bs, at = msfd.sp))
+```
+
+Plot one of the parameters (bottom temperature) - for the whole downloaded area and only for the bounding box defined by the sampling stations.    
+```{r plot_downloaded_data}
+## define the bounding box of the sampling stations
+bbox <- msfd.sp %>% 
+    xyzt::as_BBOX()
+
+## subset the downloaded Copernicus dataset to only this bounding box
+(sub <- bs[bbox])
+
+## plot the bottom temperature
+plot(bs['bottomT'], axes = TRUE, reset = FALSE)
+plot(sub['bottomT'], add = TRUE, col = rainbow(6), main = NULL)
+```
+
